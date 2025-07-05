@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Sales Data Analysis Dashboard</title>
+
+  <!-- D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.min.js"></script>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Your split CSS file -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <script src="script.js"></script>
+  <div class="dashboard-header">
+    <h1>Amazon Sales Data Analysis Dashboard</h1>
+    <p>Advanced interactive visualizations to extract meaningful insights from Amazon product data</p>
+  </div>
+
+  <div class="filters-container">
+    <div class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Products</div>
+        <div class="kpi-value" id="kpi-total-products">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Average Rating</div>
+        <div class="kpi-value" id="kpi-average-rating">0.0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Sales Value</div>
+        <div class="kpi-value" id="kpi-total-sales">$0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Reviews</div>
+        <div class="kpi-value" id="kpi-total-reviews">0</div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label for="category-filter">Product Category</label>
+      <select id="category-filter"><option value="all">All Categories</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="price-range">Discounted Price Range</label>
+      <input type="range" id="price-range" min="0" max="1000" value="1000"/>
+      <span id="price-value">Max: $1000</span>
+    </div>
+    <div class="filter-group">
+      <label for="rating-filter">Minimum Rating</label>
+      <input type="range" id="rating-filter" min="0" max="5" step="0.1" value="0"/>
+      <span id="rating-value">Min: 0</span>
+    </div>
+    <button class="reset-btn" id="reset-filters">Reset Filters</button>
+  </div>
+
+  <div class="visualizations-container">
+    <div class="chart-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 class="chart-title" style="margin-bottom:0;">Price Distribution over Discounts</h2>
+        <div class="filter-group" style="margin-bottom:0;">
+          <label for="discount-category-filter" style="margin-bottom:4px;">Product Category</label>
+          <select id="discount-category-filter"><option value="all">All Categories</option></select>
+        </div>
+      </div>
+      <div id="price-distribution-chart" class="chart"></div>
+    </div>
+
+    <div class="chart-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 class="chart-title" style="margin-bottom:0;">Category vs. Product Count</h2>
+        <div class="filter-group" style="margin-bottom:0;">
+          <label for="category-rating-filter" style="margin-bottom:4px;">Minimum Rating</label>
+          <select id="category-rating-filter">
+            <option value="0">All Ratings</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="4.5">4.5+</option>
+          </select>
+        </div>
+        <div class="filter-group" style="margin-bottom:0;">
+          <label for="category-country-filter" style="margin-bottom:4px;">Country</label>
+          <select id="category-country-filter"><option value="all">All Countries</option></select>
+        </div>
+      </div>
+      <div id="category-production-chart" class="chart"></div>
+    </div>
+
+    <div class="chart-container">
+      <h2 class="chart-title">Rating vs. Discount Percentage</h2>
+      <div class="filter-group" style="margin-bottom:10px;">
+        <label for="rating-discount-price-range">Price Range (for this chart)</label>
+        <input type="range" id="rating-discount-price-range" min="0" max="1000" value="1000"/>
+        <span id="rating-discount-price-value">Max: $1000</span>
+      </div>
+      <div id="rating-discount-chart" class="chart"></div>
+    </div>
+
+    <div class="chart-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 class="chart-title" style="margin-bottom:0;">Product Rating Distribution</h2>
+        <div style="display:flex;gap:20px;">
+          <div class="filter-group" style="margin-bottom:0;">
+            <label for="donut-category-filter" style="margin-bottom:4px;">Product Category</label>
+            <select id="donut-category-filter"><option value="all">All Categories</option></select>
+          </div>
+          <div class="filter-group" style="margin-bottom:0;">
+            <label for="donut-price-range" style="margin-bottom:4px;">Discounted Price Range</label>
+            <input type="range" id="donut-price-range" min="0" max="1000" value="1000"/>
+            <span id="donut-price-value">Max: $1000</span>
+          </div>
+        </div>
+      </div>
+      <div id="donut-rating-chart" class="chart"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Amazon Sales Data Analysis Dashboard | Advanced D3.js Visualizations | Created for Analytical Insights</p>
+  </div>
+
+  <div class="tooltip"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="scripts.js"></script>
+</body>
+</html>
